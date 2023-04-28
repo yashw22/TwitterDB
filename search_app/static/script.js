@@ -3,6 +3,7 @@ var fetchTime = document.getElementById("fetch_time");
 var resultLen = document.getElementById("result_len");
 
 document.getElementById("search_btn").onclick = btnSearch;
+document.getElementById("metric_btn").onclick = btnMetric;
 
 const searchTypes = document.querySelectorAll("input[name='search_type']");
 var searchType, searchWord, startDate, endDate;
@@ -256,4 +257,54 @@ function switchTab(evt, tabName) {
     
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
+}
+
+
+function btnMetric(){
+    $.ajax({
+        type: "GET",
+        url: "http://localhost:5000/metric",
+        dataType: "json",
+        success: buildMetric,
+        error: function(xrh, status, error) { alert("Error in fetching data.") }
+    });
+}
+
+function buildMetric(response){
+    fetchTime.innerHTML = "Search Time: " + response['fetch_time']*1000 + " ms";
+    resultLen.innerHTML = "";
+
+    var feedStr = "";
+
+    feedStr += '<h2>Top 10 Users</h2>';
+    feedStr += '<table> <tr><th>Name</th><th>Followers</th></tr>';
+    var users = response['data'][0];
+    for(var i=0; i<users.length; i++){
+        feedStr += '<tr><td>'+ users[i]['name'] +'</td><td>'+ users[i]['count'] +'</td></tr>';   
+    }
+    feedStr += '</table>';
+    
+    feedStr += '<h2>Top 10 Tweets</h2>';
+    var res = response['data'][1]
+    for(var i=0; i<res.length; i++){
+        var tweet = res[i];
+        feedStr += '<div class="card">';
+        feedStr += '<div><span onclick="authorClick(\''+ tweet['user']['id'] +'\');" class="name click_div">'+ tweet['user']['name'];
+        if(tweet['user']['verified']) feedStr += ' <img src="./static/verified.png" width="14" height="14" />';
+        feedStr += '</span></div>';
+
+        feedStr += '<div class="time">'+ fromatDate(tweet['created_at']) +'</div>';
+        feedStr += '<div class="screen_name">@'+ tweet['user']['screen_name'] +'</div>';
+        feedStr += '<div class="tweet">'+ tweet['text'] +'</div>';
+        
+        feedStr += '<div class="bottom_bar">';
+        feedStr += '<div onclick="retweetClick(\''+ tweet['id'] +'\');" class="retweet_count click_div">Retweets: '+ tweet['retweet_count'] +'</div>';
+        feedStr += '<div class="favourite_count">Favourites: '+ tweet['favorite_count'] +'</div>';
+        feedStr += '<div class="reply_count">Replies: '+ tweet['reply_count'] +'</div>';
+	    feedStr += '</div>';
+
+	    feedStr += '</div>';
+    }
+
+    content.innerHTML = feedStr;
 }
