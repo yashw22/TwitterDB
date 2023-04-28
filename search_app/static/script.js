@@ -1,4 +1,6 @@
 var content = document.getElementById("content");
+var fetchTime = document.getElementById("fetch_time");
+var resultLen = document.getElementById("result_len");
 
 document.getElementById("search_btn").onclick = btnSearch;
 
@@ -35,7 +37,11 @@ const getAPI = (type, word, sDate, eDate) => {
     });
 }
 
-function buildFeed(res){
+function buildFeed(response){
+    res = response['data']
+    fetchTime.innerHTML = "Search Time: " + response['fetch_time']*1000 + " ms";
+    resultLen.innerHTML = res.length + " tweets found.";
+
     var feedStr = '<h2>Tweets</h2>';
     
     if(res.length===0) feedStr += "No tweet matched search Query.";
@@ -74,7 +80,11 @@ const authorClick = (id) => {
     });
 }
 
-function buildAuthor(author){
+function buildAuthor(response){
+    author = response['data']
+    fetchTime.innerHTML = "Search Time: " + response['fetch_time']*1000 + " ms";
+    resultLen.innerHTML = author['tweets'].length + " tweets found." + author['retweets'].length + " retweets found.";
+
     console.log(author['tweets']);
 
     var feedStr = '<h2>Author</h2>';
@@ -157,7 +167,11 @@ const retweetClick = (id) => {
     });
 }
 
-function buildRetweet(tweet){
+function buildRetweet(response){
+    tweet = response['data']
+    fetchTime.innerHTML = "Search Time: " + response['fetch_time']*1000 + " ms";
+    resultLen.innerHTML = tweet['retweets'].length + " retweets found.";
+
     var feedStr = "";
 
     feedStr += '<div class="card" style="background-color:#33475b; color:white;">';
